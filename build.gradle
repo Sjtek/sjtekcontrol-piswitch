@@ -1,0 +1,30 @@
+group 'nl.sjtek.control'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'com.rabbitmq:amqp-client:4.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'com.google.guava:guava:21.0'
+    compile 'com.github.sjtek.sjtekcontrol-core:data:4.6'
+    compile 'com.google.code.gson:gson:2.8.0'
+}
+
+mainClassName = 'nl.sjtek.control.piswitch.PiSwitch'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'nl.sjtek.control.piswitch.PiSwitch'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}

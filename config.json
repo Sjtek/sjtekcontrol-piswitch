@@ -1,0 +1,12 @@
+{
+  "host": "",
+  "username": "",
+  "password": "",
+  "systemCode": 0,
+  "rcSwitchPath": "/usr/bin/send",
+  "targets": [
+    1,
+    2,
+    3
+  ]
+}
