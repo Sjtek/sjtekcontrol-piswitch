@@ -1,5 +1,6 @@
 package nl.sjtek.control.piswitch;
 
+import com.google.common.eventbus.Subscribe;
 import com.rabbitmq.client.*;
 import nl.sjtek.control.data.ampq.events.LightEvent;
 import nl.sjtek.control.data.ampq.events.TemperatureEvent;
@@ -47,6 +48,7 @@ public class AMPQ {
         }
     }
 
+    @Subscribe
     public void onTemperatureUpdate(TemperatureEvent event) {
         if (channelTemperature != null && channelTemperature.isOpen()) {
             try {

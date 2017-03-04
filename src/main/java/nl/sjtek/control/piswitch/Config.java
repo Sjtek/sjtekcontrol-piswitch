@@ -18,14 +18,16 @@ public class Config {
     private final String password;
     private final String systemCode;
     private final String rcSwitchPath;
+    private final String temperatureCommand;
     private final int targets[];
 
-    private Config(String host, String username, String password, String systemCode, String rcSwitchPath, int[] targets) {
+    private Config(String host, String username, String password, String systemCode, String rcSwitchPath, String temperatureCommand, int[] targets) {
         this.host = host;
         this.username = username;
         this.password = password;
         this.systemCode = systemCode;
         this.rcSwitchPath = rcSwitchPath;
+        this.temperatureCommand = temperatureCommand;
         this.targets = targets;
     }
 
@@ -68,5 +70,9 @@ public class Config {
 
     public String getRcSwitchPath() {
         return rcSwitchPath;
+    }
+
+    public String getTemperatureCommand() {
+        return temperatureCommand;
     }
 }

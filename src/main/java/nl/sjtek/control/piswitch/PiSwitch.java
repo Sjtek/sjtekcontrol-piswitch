@@ -15,6 +15,6 @@ public class PiSwitch {
                 Config.get().getPassword()
         );
         EventHandler eventHandler = new EventHandler();
-        System.in.read();
+        Temperature temperature = new Temperature();
     }
 }
