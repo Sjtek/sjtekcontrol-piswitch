@@ -2,6 +2,7 @@ package nl.sjtek.control.piswitch;
 
 import com.rabbitmq.client.*;
 import nl.sjtek.control.data.ampq.events.LightEvent;
+import nl.sjtek.control.data.ampq.events.TemperatureEvent;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -12,9 +13,11 @@ import java.util.concurrent.TimeoutException;
 public class AMPQ {
 
     private static final String EXCHANGE_LIGHTS = "lights";
-    private Channel channelAction;
-    private Connection connection;
+    private static final String EXCHANGE_TEMPERATURE = "temperature";
     private final ConnectionFactory factory;
+    private Channel channelAction;
+    private Channel channelTemperature;
+    private Connection connection;
 
     public AMPQ(String host, String username, String password) {
         factory = new ConnectionFactory();
@@ -23,19 +26,34 @@ public class AMPQ {
         factory.setPassword(password);
         factory.setAutomaticRecoveryEnabled(true);
         new PingThread("https://sjtek.nl/rabbitmq", this::connect).start();
+        Bus.regsiter(this);
     }
 
     private void connect() {
         try {
             connection = factory.newConnection();
+
             channelAction = connection.createChannel();
             channelAction.exchangeDeclare(EXCHANGE_LIGHTS, "fanout");
             String updateQueueName = channelAction.queueDeclare().getQueue();
             channelAction.queueBind(updateQueueName, EXCHANGE_LIGHTS, "");
             channelAction.basicConsume(updateQueueName, true, new MessageConsumer(channelAction));
+
+            channelTemperature = connection.createChannel();
+            channelTemperature.exchangeDeclare(EXCHANGE_TEMPERATURE, "fanout");
             System.out.println("Connected to broker.");
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void onTemperatureUpdate(TemperatureEvent event) {
+        if (channelTemperature != null && channelTemperature.isOpen()) {
+            try {
+                channelTemperature.basicPublish(EXCHANGE_TEMPERATURE, "", null, event.toString().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
