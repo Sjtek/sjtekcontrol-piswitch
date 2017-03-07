@@ -1,6 +1,8 @@
 package nl.sjtek.control.piswitch;
 
 import com.google.common.eventbus.Subscribe;
+import io.habets.javautils.Bus;
+import io.habets.javautils.Executor;
 import nl.sjtek.control.data.ampq.events.LightEvent;
 
 import java.io.IOException;
@@ -34,10 +36,9 @@ public class EventHandler {
             }
             System.out.print("ID: " + event.getId() + " STATE: " + (event.isEnabled() ? "1" : "0"));
             System.out.print(" CMD: " + Arrays.toString(command));
-            int result = Executor.execute(command);
+            int result = Executor.execute(command).getReturnCode();
             System.out.println(" RESULT: " + result);
-        } catch (IOException | InterruptedException e) {
-//            e.printStackTrace();
+        } catch (IOException | InterruptedException ignored) {
         } finally {
             System.out.println();
         }

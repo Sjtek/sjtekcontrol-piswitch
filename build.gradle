@@ -14,10 +14,8 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'com.rabbitmq:amqp-client:4.0.0'
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
-    compile 'com.google.guava:guava:21.0'
     compile 'com.github.sjtek.sjtekcontrol-core:data:4.6'
-    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.github.whhoesj:java-utils:0.1'
 }
 
 mainClassName = 'nl.sjtek.control.piswitch.PiSwitch'

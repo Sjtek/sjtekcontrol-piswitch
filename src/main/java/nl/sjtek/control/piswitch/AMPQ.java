@@ -2,6 +2,8 @@ package nl.sjtek.control.piswitch;
 
 import com.google.common.eventbus.Subscribe;
 import com.rabbitmq.client.*;
+import io.habets.javautils.Bus;
+import io.habets.javautils.PingThread;
 import nl.sjtek.control.data.ampq.events.LightEvent;
 import nl.sjtek.control.data.ampq.events.TemperatureEvent;
 
@@ -26,7 +28,7 @@ public class AMPQ {
         factory.setUsername(username);
         factory.setPassword(password);
         factory.setAutomaticRecoveryEnabled(true);
-        new PingThread("https://sjtek.nl/rabbitmq", this::connect).start();
+        new PingThread("https://sjtek.nl/rabbitmq", 1000, this::connect).start();
         Bus.regsiter(this);
     }
 
