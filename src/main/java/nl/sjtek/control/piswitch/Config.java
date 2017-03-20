@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by wouter on 3-3-17.
@@ -19,16 +20,16 @@ public class Config {
     private final String systemCode;
     private final String rcSwitchPath;
     private final String temperatureCommand;
-    private final int targets[];
+    private final Map<String, Integer> lightsMap;
 
-    private Config(String host, String username, String password, String systemCode, String rcSwitchPath, String temperatureCommand, int[] targets) {
+    private Config(String host, String username, String password, String systemCode, String rcSwitchPath, String temperatureCommand, Map<String, Integer> lightsMap) {
         this.host = host;
         this.username = username;
         this.password = password;
         this.systemCode = systemCode;
         this.rcSwitchPath = rcSwitchPath;
         this.temperatureCommand = temperatureCommand;
-        this.targets = targets;
+        this.lightsMap = lightsMap;
     }
 
     public static synchronized Config get() {
@@ -57,15 +58,8 @@ public class Config {
         return systemCode;
     }
 
-    public int[] getTargets() {
-        return targets;
-    }
-
-    public boolean hasTarget(int target) {
-        for (int includedTarget : targets) {
-            if (includedTarget == target) return true;
-        }
-        return false;
+    public Integer getTarget(int target) {
+        return lightsMap.get(String.valueOf(target));
     }
 
     public String getRcSwitchPath() {

@@ -20,13 +20,14 @@ public class EventHandler {
     @Subscribe
     public void onEvent(LightEvent event) {
         Config config = Config.get();
-        if (!config.hasTarget(event.getId())) return;
+        Integer id = config.getTarget(event.getId());
+        if (id == null) return;
 
 
         String command[] = {
                 config.getRcSwitchPath(),
                 config.getSystemCode(),
-                String.valueOf(event.getId()),
+                String.valueOf(id),
                 (event.isEnabled() ? "1" : "0")
         };
 
@@ -34,7 +35,7 @@ public class EventHandler {
             if (event.useRgb()) {
                 System.out.println("Received command with RGB, not supported.");
             }
-            System.out.print("ID: " + event.getId() + " STATE: " + (event.isEnabled() ? "1" : "0"));
+            System.out.print("ID: " + id + " STATE: " + (event.isEnabled() ? "1" : "0"));
             System.out.print(" CMD: " + Arrays.toString(command));
             int result = Executor.execute(command).getReturnCode();
             System.out.println(" RESULT: " + result);
