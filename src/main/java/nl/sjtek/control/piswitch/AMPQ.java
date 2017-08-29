@@ -5,6 +5,8 @@ import com.rabbitmq.client.*;
 import io.habets.javautils.Bus;
 import io.habets.javautils.PingThread;
 import nl.sjtek.control.data.ampq.events.LightEvent;
+import nl.sjtek.control.data.ampq.events.LightStateEvent;
+import nl.sjtek.control.data.ampq.events.SensorEvent;
 import nl.sjtek.control.data.ampq.events.TemperatureEvent;
 
 import java.io.IOException;
@@ -17,9 +19,13 @@ public class AMPQ {
 
     private static final String EXCHANGE_LIGHTS = "lights";
     private static final String EXCHANGE_TEMPERATURE = "temperature";
+    private static final String EXCHANGE_LIGHT_STATE = "lights_state";
+    private static final String EXCHANGE_SENSORS = "sensors";
     private final ConnectionFactory factory;
     private Channel channelAction;
     private Channel channelTemperature;
+    private Channel channelLightState;
+    private Channel channelSensors;
     private Connection connection;
 
     public AMPQ(String host, String username, String password) {
@@ -44,6 +50,13 @@ public class AMPQ {
 
             channelTemperature = connection.createChannel();
             channelTemperature.exchangeDeclare(EXCHANGE_TEMPERATURE, "fanout");
+
+            channelLightState = connection.createChannel();
+            channelLightState.exchangeDeclare(EXCHANGE_LIGHT_STATE, BuiltinExchangeType.FANOUT);
+
+            channelSensors = connection.createChannel();
+            channelSensors.exchangeDeclare(EXCHANGE_SENSORS, BuiltinExchangeType.FANOUT);
+
             System.out.println("Connected to broker.");
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
@@ -58,6 +71,31 @@ public class AMPQ {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Subscribe
+    public void onSensorUpdate(SensorEvent event) {
+        if (channelSensors != null && channelSensors.isOpen()) {
+            try {
+                channelSensors.basicPublish(EXCHANGE_SENSORS, "", null, event.toString().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Exchange " + EXCHANGE_SENSORS + " not open.");
+        }
+    }
+
+    public void onStateChange(LightStateEvent event) {
+        if (channelLightState != null && channelLightState.isOpen()) {
+            try {
+                channelLightState.basicPublish(EXCHANGE_LIGHT_STATE, "", null, event.toString().getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Exchange " + EXCHANGE_LIGHT_STATE + " not open.");
         }
     }
 

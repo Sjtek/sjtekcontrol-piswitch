@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import io.habets.javautils.Bus;
 import io.habets.javautils.Executor;
 import nl.sjtek.control.data.ampq.events.LightEvent;
+import nl.sjtek.control.data.ampq.events.LightStateEvent;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,6 +40,9 @@ public class EventHandler {
             System.out.print(" CMD: " + Arrays.toString(command));
             int result = Executor.execute(command).getReturnCode();
             System.out.println(" RESULT: " + result);
+            if (result == 0) {
+                Bus.post(new LightStateEvent(id, event.isEnabled()));
+            }
         } catch (IOException | InterruptedException ignored) {
         } finally {
             System.out.println();

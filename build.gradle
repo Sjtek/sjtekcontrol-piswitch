@@ -14,7 +14,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'com.rabbitmq:amqp-client:4.0.0'
-    compile 'com.github.sjtek.sjtekcontrol-core:data:4.6'
+    compile 'com.github.sjtek.sjtekcontrol-core:data:4.9'
     compile 'com.github.whhoesj:java-utils:0.1'
 }
 
