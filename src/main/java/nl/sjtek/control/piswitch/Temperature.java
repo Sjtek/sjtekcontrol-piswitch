@@ -2,8 +2,7 @@ package nl.sjtek.control.piswitch;
 
 import io.habets.javautils.Bus;
 import io.habets.javautils.Executor;
-import nl.sjtek.control.data.ampq.events.SensorEvent;
-import nl.sjtek.control.data.ampq.events.TemperatureEvent;
+import nl.sjtek.control.data.amqp.SensorEvent;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -26,8 +25,7 @@ public class Temperature {
         try {
             Executor.Result result = Executor.execute(new String[]{Config.get().getTemperatureCommand()});
             float temp = Float.parseFloat(result.getData());
-            Bus.post(new TemperatureEvent(ID, temp));
-            Bus.post(new SensorEvent(SensorEvent.Type.TEMPERATURE, ID, temp));
+            Bus.post(new SensorEvent(SensorEvent.Type.TEMPERATURE, ID, temp, 0));
         } catch (Exception e) {
             e.printStackTrace();
         }

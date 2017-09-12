@@ -4,10 +4,9 @@ import com.google.common.eventbus.Subscribe;
 import com.rabbitmq.client.*;
 import io.habets.javautils.Bus;
 import io.habets.javautils.PingThread;
-import nl.sjtek.control.data.ampq.events.LightEvent;
-import nl.sjtek.control.data.ampq.events.LightStateEvent;
-import nl.sjtek.control.data.ampq.events.SensorEvent;
-import nl.sjtek.control.data.ampq.events.TemperatureEvent;
+import nl.sjtek.control.data.amqp.SensorEvent;
+import nl.sjtek.control.data.amqp.SwitchEvent;
+import nl.sjtek.control.data.amqp.SwitchStateEvent;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -15,6 +14,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Created by wouter on 3-3-17.
  */
+@SuppressWarnings("Duplicates")
 public class AMPQ {
 
     private static final String EXCHANGE_LIGHTS = "lights";
@@ -29,6 +29,7 @@ public class AMPQ {
     private Connection connection;
 
     public AMPQ(String host, String username, String password) {
+        System.out.println("Connecting to broker...");
         factory = new ConnectionFactory();
         factory.setHost(host);
         factory.setUsername(username);
@@ -64,21 +65,10 @@ public class AMPQ {
     }
 
     @Subscribe
-    public void onTemperatureUpdate(TemperatureEvent event) {
+    public void onTemperatureUpdate(SensorEvent event) {
         if (channelTemperature != null && channelTemperature.isOpen()) {
             try {
-                channelTemperature.basicPublish(EXCHANGE_TEMPERATURE, "", null, event.toString().getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Subscribe
-    public void onSensorUpdate(SensorEvent event) {
-        if (channelSensors != null && channelSensors.isOpen()) {
-            try {
-                channelSensors.basicPublish(EXCHANGE_SENSORS, "", null, event.toString().getBytes());
+                channelTemperature.basicPublish(EXCHANGE_TEMPERATURE, "", null, event.toMessage());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -87,10 +77,25 @@ public class AMPQ {
         }
     }
 
-    public void onStateChange(LightStateEvent event) {
+    @Subscribe
+    public void onSensorUpdate(SensorEvent event) {
+        if (channelSensors != null && channelSensors.isOpen()) {
+            try {
+                channelSensors.basicPublish(EXCHANGE_SENSORS, "", null, event.toMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Exchange " + EXCHANGE_SENSORS + " not open.");
+        }
+    }
+
+    @Subscribe
+    public void onStateChange(SwitchStateEvent event) {
         if (channelLightState != null && channelLightState.isOpen()) {
             try {
-                channelLightState.basicPublish(EXCHANGE_LIGHT_STATE, "", null, event.toString().getBytes());
+                System.out.println("Sending state: " + event.toString());
+                channelLightState.basicPublish(EXCHANGE_LIGHT_STATE, "", null, event.toMessage());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -112,8 +117,14 @@ public class AMPQ {
 
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-            LightEvent event = new LightEvent(new String(body));
-            Bus.post(event);
+            String data = new String(body);
+            SwitchEvent event = SwitchEvent.Companion.fromMessage(data);
+            if (event == null) {
+                System.err.println("Invalid message: " + data);
+            } else {
+                System.out.println(event.toString());
+                Bus.post(event);
+            }
         }
     }
 }

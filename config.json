@@ -3,10 +3,12 @@
   "username": "",
   "password": "",
   "systemCode": 0,
-  "rcSwitchPath": "/usr/bin/send",
-  "targets": [
-    1,
-    2,
-    3
-  ]
+  "rcSwitchPath": "test",
+  "temperatureCommand": "/usr/bin/temperature",
+  "lightsMap": {
+    "2": 1,
+    "3": 2,
+    "10": 5,
+    "11": 4
+  }
 }
